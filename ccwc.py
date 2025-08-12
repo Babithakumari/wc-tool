@@ -75,11 +75,15 @@ def display_output(output: str | list):
     """ 
     Displays output by formatting accordingly 
     """
-    if(type(output) == list):
+
+    if isinstance(output, list):
         for line in output:
-            print(line)
+            if isinstance(line, list):
+                print(" ".join(str(item) for item in line))
+            else:
+                print(str(line))
     else:
-        print(result)
+        print(str(output))
 
 
 if __name__ == '__main__':
