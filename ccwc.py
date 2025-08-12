@@ -2,6 +2,7 @@
 import sys
 import argparse
 import fileinput
+import os
 # import locale
 # locale.setlocale(locale.LC_ALL, '')
 # print(f"Locale setting = ${locale.getlocale}")
@@ -14,22 +15,26 @@ def count(file):
     line_count = 0
     word_count = 0
     char_count = 0
+    byte_count = 0
 
     for line in file:
         line_count += 1
         word_count += len(line.split())
         char_count += len(line)
+    file.seek(0)
+    file_content = file.read()
+    byte_count = len(file_content.encode('utf-8'))
 
-    return line_count, word_count, char_count
+    return line_count, word_count, char_count, byte_count
 
 def process_file(file, args):
     """
     Process a single file and return count result based on args.
     """
-    line_count, word_count, char_count = count(file)
+    line_count, word_count, char_count, byte_count = count(file)
 
     if args.bytes:
-        return [char_count, file.name]
+        return [byte_count, file.name]
     elif args.lines:
         return [line_count, file.name]
     elif args.words:
@@ -37,7 +42,7 @@ def process_file(file, args):
     elif args.chars:
         return [char_count, file.name]
     else:
-        return [line_count, word_count, char_count, file.name]
+        return [line_count, word_count, byte_count, file.name]
 
 def process_files(files, args):
     """
@@ -55,7 +60,7 @@ def main(args):
     """
     Main driver function. Processes input based on whether stdin or files are used.
     """
-    output = []
+    output = None
 
     # Determine the source type
     if args.file != sys.stdin:
