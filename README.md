@@ -1,15 +1,32 @@
-## Introduction
-This is a python implementation of the wc tool
+# 📝 Build Your Own `wc` Tool (ccwc)
 
-## Additional Notes
-### Steps to make python script executable
-1. Make the script executable the following way:
-`chmod +x script-name.py`
+This project is an implementation of the classic Unix command line tool **`wc`** (word count), following the Unix philosophy of *small, simple tools connected by clean interfaces*.  
 
-2. Write a shebang on top of the script  pointing to the python interpreter(e.g. `#!/usr/bin/env python3`)
+It supports counting **bytes, lines, words, and characters** from files or standard input, just like the real `wc`.
 
-3. Add the folder containing the script to the path
-`export PATH=$PATH:<path-to-your-script>`
+---
 
-4. To be able to execute the script without the `.py` extension, create a symbolic link the script in a directory already included in the path
-`ln -s some_file.py some_file`
+## 🚀 Features
+
+- `-c` → Count **bytes** in a file  
+- `-l` → Count **lines** in a file  
+- `-w` → Count **words** in a file  
+- `-m` → Count **characters** in a file (multi-byte safe)  
+- **Default (no flags)** → Show **lines, words, and bytes**  
+- Supports reading from **files** or from **standard input**  
+
+---
+
+## 🛠 Usage
+
+```bash
+python3 ccwc.py [OPTION]... [FILE]...
+```
+The following options can be used with this tool:
+
+- `-c` → Count the number of **bytes** in the file  
+- `-m` → Count the number of **characters** in the file  
+- `-l` → Count the number of **lines** in the file  
+- `-w` → Count the number of **words** in the file  
+
+If no FILE is specified, input will be read from stdin.
