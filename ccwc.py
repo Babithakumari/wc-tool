@@ -3,58 +3,55 @@ import sys
 import argparse
 import fileinput
 import os
-# import locale
-# locale.setlocale(locale.LC_ALL, '')
-# print(f"Locale setting = ${locale.getlocale}")
 
-
-def count(file):
+def count(inputStream):
     """
-    Counts lines, words, and characters in a given file-like object.
+    Return statistics of the stream as a dict.
     """
-    line_count = 0
-    word_count = 0
-    char_count = 0
-    byte_count = 0
+    data = inputStream.read()
 
-    for line in file:
-        line_count += 1
-        word_count += len(line.split())
-        char_count += len(line)
-    file.seek(0)
-    file_content = file.read()
-    byte_count = len(file_content.encode('utf-8'))
-
+    return {
+        "lines": data.count("\n"),
+        "words": len(data.split()),
+        "chars": len(data),
+        "bytes": len(data.encode("utf-8")),
+    }
+  
     return line_count, word_count, char_count, byte_count
 
-def process_file(file, args):
+def get_result(stats: dict, args, file_name: str | None = None):
     """
-    Process a single file and return count result based on args.
+    Pick values from stats based on flags.
     """
-    line_count, word_count, char_count, byte_count = count(file)
-
     if args.bytes:
-        return [byte_count, file.name]
+        result = [stats["bytes"]]
     elif args.lines:
-        return [line_count, file.name]
+        result = [stats["lines"]]
     elif args.words:
-        return [word_count, file.name]
+        result = [stats["words"]]
     elif args.chars:
-        return [char_count, file.name]
+        result = [stats["chars"]]
     else:
-        return [line_count, word_count, byte_count, file.name]
+        result = [stats["lines"], stats["words"], stats["bytes"]]
+
+    if file_name:
+        result.append(file_name)
+
+    return result
+
 
 def process_files(files, args):
     """
     Process multiple files and return list of results.
     """
-    results = []
+    return [get_result(count(f), args, f.name) for f in files]
 
-    for f in files:
-        result = process_file(f, args)
-        results.append(result)
 
-    return results
+def process_input(input_stream, args):
+    """
+    Process standard input and return result.
+    """
+    return get_result(count(input_stream), args)
 
 def main(args):
     """
@@ -66,8 +63,7 @@ def main(args):
     if args.file != sys.stdin:
         output = process_files(args.file, args)
     else:
-        # Placeholder for stdin handling
-        pass
+        output = process_input(sys.stdin, args)
 
     return output
 
@@ -77,15 +73,16 @@ def display_output(output: str | list):
     """
 
     if isinstance(output, list):
-        for line in output:
-            if isinstance(line, list):
+        if(isinstance(output[0], list)):
+            for line in output:
                 print(" ".join(str(item) for item in line))
-            else:
-                print(str(line))
+        else:
+            print(" ".join(str(item) for item in output))
     else:
         print(str(output))
 
 
+# Driver code
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='replicate the wc tool(linux)')
     parser.add_argument('-c', '--bytes',help = 'option to count number of bytes in file', action='store_true')
@@ -93,7 +90,7 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--words',help = 'option to count number of words in file', action='store_true')
     parser.add_argument('-m', '--chars',help = 'option to count number of characters in file', action='store_true')
     # expects optional input-files if provided, else standard input
-    parser.add_argument('file', nargs='*', type=argparse.FileType('r'), default=sys.stdin)
+    parser.add_argument('file', nargs='*', type=argparse.FileType('r', encoding='utf-8'), default=sys.stdin)
     args = parser.parse_args()
 
 
